@@ -1,0 +1,11 @@
+version: "3"
+
+tasks:
+  load-env:
+    desc: Start environment for aws cli
+    cmds:
+     - export $(grep -v '^#' .env | xargs)
+  up:
+    desc: Start LocalStack in detached mode
+    cmds:
+      - docker compose -f localstack-docker-compose.yml up -d
