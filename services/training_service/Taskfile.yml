@@ -1,0 +1,7 @@
+version: "3"
+
+tasks:
+  docker-build:
+    desc: create training service docker image
+    cmds:
+      - docker build -t training-service:latest .
