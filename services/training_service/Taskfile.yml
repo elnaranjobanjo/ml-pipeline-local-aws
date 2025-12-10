@@ -5,3 +5,9 @@ tasks:
     desc: create training service docker image
     cmds:
       - docker build -t training-service:latest .
+  training:deploy:
+    desc: Apply Terraform for the training service infrastructure
+    dir: services/training_service/infra/terraform
+    cmds:
+     - terraform init
+     - terraform apply
