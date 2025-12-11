@@ -5,9 +5,11 @@ services:
       - "4566:4566"
       - "4510-4559:4510-4559"
     environment:
-      - SERVICES=s3,sqs,lambda,iam,cloudwatch,stepfunctions,ecr,ecs,logs
+      - SERVICES=SERVICES=acm,apigateway,cloudformation,cloudwatch,config,dynamodb,dynamodbstreams,ec2,es,events,firehose,iam,kinesis,kms,lambda,logs,opensearch,redshift,resource-groups,resourcegroupstaggingapi,route53,route53resolver,s3,s3control,scheduler,secretsmanager,ses,sns,sqs,ssm,stepfunctions,sts,support,swf,transcribe
       - DEBUG=1
-    # - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}
+      - LS_LOG=debug
+      - AWS_DEFAULT_REGION=us-east-1
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}
     volumes:
       - "./S3:/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
