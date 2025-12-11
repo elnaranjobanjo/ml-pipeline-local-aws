@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 ENV UV_SYSTEM_BIN=1
 
-WORKDIR /app
+WORKDIR /src
 
 RUN pip install --no-cache-dir uv
 
@@ -10,6 +10,6 @@ COPY pyproject.toml .
 
 RUN uv sync --no-dev
 
-COPY training ./training
+COPY src/train.py /src/
 
-ENTRYPOINT ["python", "-m", "training.train"]
+ENTRYPOINT ["python", "-m", "src.train"]
