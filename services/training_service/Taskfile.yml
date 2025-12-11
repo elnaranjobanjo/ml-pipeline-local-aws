@@ -3,11 +3,26 @@ version: "3"
 tasks:
   docker-build:
     desc: create training service docker image
+    dir: .
+    vars:
+      IMAGE_NAME: '{{default "training-service:latest" .IMAGE_NAME}}'
     cmds:
-      - docker build -t training-service:latest .
+      - docker build -t {{.IMAGE_NAME}} .
+  docker-push:
+    desc: tag and push the training image to the registry specified by TRAINING_IMAGE_URI
+    deps:
+      - docker-build
+    vars:
+      IMAGE_NAME: '{{default "training-service:latest" .IMAGE_NAME}}'
+    cmds:
+      - '[[ -n "{{.TRAINING_IMAGE_URI}}" ]] || { echo "TRAINING_IMAGE_URI env/var is required (e.g. 000000000000.dkr.ecr.us-east-1.amazonaws.com/training-service:latest)"; exit 1; }'
+      - docker tag {{.IMAGE_NAME}} {{.TRAINING_IMAGE_URI}}
+      - docker push {{.TRAINING_IMAGE_URI}}
   training:deploy:
     desc: Apply Terraform for the training service infrastructure
-    dir: services/training_service/infra/terraform
+    dir: infra/terraform
+    deps:
+      - docker-push
     cmds:
      - terraform init
      - terraform apply

@@ -5,7 +5,7 @@ services:
       - "4566:4566"
       - "4510-4559:4510-4559"
     environment:
-      - SERVICES=s3,sqs,lambda,iam,cloudwatch,stepfunctions
+      - SERVICES=s3,sqs,lambda,iam,cloudwatch,stepfunctions,ecr,ecs,logs
       - DEBUG=1
     # - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}
     volumes:
