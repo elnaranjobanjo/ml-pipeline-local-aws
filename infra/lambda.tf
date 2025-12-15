@@ -5,9 +5,9 @@ resource "aws_lambda_function" "training" {
   runtime = "python3.11"
   handler = "lambda_function.lambda_handler"
 
-  filename         = "${path.module}/../training_service/training-lambda.zip"
+  filename         = "${path.module}/../services/training_service/dist/training-lambda.zip"
   source_code_hash = filebase64sha256(
-    "${path.module}/../training_service/training-lambda.zip"
+    "${path.module}/../services/training_service/dist/training-lambda.zip"
   )
 
   environment {
