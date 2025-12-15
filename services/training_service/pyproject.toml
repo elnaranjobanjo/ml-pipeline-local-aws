@@ -8,6 +8,7 @@ dependencies = [
     "localstack-client",
     "awscli-local",
     "pandas",
+    "localstack",
 ]
 
 [tool.uv]

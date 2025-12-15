@@ -9,7 +9,9 @@ services:
       - DEBUG=1
       - LS_LOG=debug
       - AWS_DEFAULT_REGION=us-east-1
+      - LOCALSTACK_PERSISTENCE=1
     #  - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}
     volumes:
       - "./S3:/data"
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./localstack-data:/var/lib/localstack"

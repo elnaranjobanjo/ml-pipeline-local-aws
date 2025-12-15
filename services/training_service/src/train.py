@@ -6,7 +6,6 @@ development) and trains a simple logistic regression model.
 
 from __future__ import annotations
 
-import argparse
 import io
 import json
 import logging
@@ -15,6 +14,7 @@ from dataclasses import dataclass
 from typing import Dict, Sequence
 
 import boto3
+import joblib
 import numpy as np
 import pandas as pd
 from numpy.typing import NDArray
@@ -132,35 +132,60 @@ def train_next_move_logistic_classifier(
     )
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Train the bitcoin logistic classifier using data from S3.")
-    parser.add_argument("--bucket", default=os.getenv("TRAINING_DATA_BUCKET", "ml-data-demo"))
-    parser.add_argument(
-        "--key",
-        default=os.getenv("TRAINING_DATA_KEY", "data/btc_candles_labeled_sample.csv"),
-        help="S3 key that stores the labeled candles CSV.",
-    )
-    parser.add_argument(
-        "--endpoint-url",
-        default=os.getenv("AWS_ENDPOINT_URL"),
-        help="Custom endpoint URL (set to the LocalStack URL for local runs).",
-    )
-    parser.add_argument("--test-size", type=float, default=float(os.getenv("TRAIN_TEST_SIZE", 0.2)))
-    parser.add_argument("--random-state", type=int, default=int(os.getenv("TRAIN_RANDOM_STATE", 137)))
-    return parser.parse_args()
-
-
-def main() -> None:
-    logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
-    args = parse_args()
-    df = _load_dataframe_from_s3(bucket=args.bucket, key=args.key, endpoint_url=args.endpoint_url)
+def run_training(
+    *,
+    bucket: str,
+    key: str,
+    endpoint_url: str | None,
+    artifact_bucket: str | None = None,
+    artifact_key: str | None = None,
+    test_size: float = 0.2,
+    random_state: int = 137,
+) -> TrainingResult:
+    """Load training data from S3, fit the classifier, optionally persist artifacts."""
+    df = _load_dataframe_from_s3(bucket=bucket, key=key, endpoint_url=endpoint_url)
     result = train_next_move_logistic_classifier(
         df=df,
-        test_size=args.test_size,
-        random_state=args.random_state,
+        test_size=test_size,
+        random_state=random_state,
     )
     logger.info("Training metrics: %s", json.dumps(result.metrics, indent=2))
+    if artifact_bucket:
+        _persist_artifact(
+            training=result,
+            bucket=artifact_bucket,
+            key=artifact_key or "models/training_pipeline.pkl",
+            endpoint_url=endpoint_url,
+        )
+    return result
 
 
-if __name__ == "__main__":
-    main()
+def _persist_artifact(
+    *,
+    training: TrainingResult,
+    bucket: str,
+    key: str,
+    endpoint_url: str | None,
+    metadata: Dict[str, str] | None = None,
+) -> None:
+    """Serialize the trained pipeline and push it to S3 for later inference."""
+    logger.info("Uploading trained artifacts to s3://%s/%s", bucket, key)
+    buffer = io.BytesIO()
+    joblib.dump(
+        {
+            "model": training.model,
+            "metrics": training.metrics,
+            "feature_names": list(training.feature_names),
+        },
+        buffer,
+    )
+    buffer.seek(0)
+    session = boto3.session.Session()
+    client = session.client(
+        "s3",
+        endpoint_url=endpoint_url,
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID", "test"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY", "test"),
+        region_name=os.getenv("AWS_REGION", "us-east-1"),
+    )
+    client.put_object(Bucket=bucket, Key=key, Body=buffer.read(), Metadata=metadata or {})
