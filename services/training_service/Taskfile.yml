@@ -18,11 +18,23 @@ tasks:
     cmds:
       - rm -rf {{.BUILD_DIR}} {{.DIST_DIR}}
 
-  build:
-    desc: Build Lambda zip (deps + source)
-    deps: [clean]
+  build:layer:
+    desc: Build Lambda layer with Python dependencies
+    cmds:
+      - mkdir -p layer/python
+      - uv pip install --target layer/python -r requirements-lambda.txt
+      - cd layer && zip -r ../{{.DIST_DIR}}/ml-deps-layer.zip .
+
+  build:function:
+    desc: Build Lambda function zip (source only)
     cmds:
       - mkdir -p {{.BUILD_DIR}} {{.DIST_DIR}}
-      - uv pip install --target {{.BUILD_DIR}} -r requirements-lambda.txt
       - cp -r src/* {{.BUILD_DIR}}
       - cd {{.BUILD_DIR}} && zip -r ../{{.DIST_DIR}}/{{.ZIP_NAME}} .
+
+  build:
+    desc: Build lambda and layer
+    deps: 
+      - clean
+      - build:layer
+      - build:function

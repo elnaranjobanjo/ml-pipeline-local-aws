@@ -5,7 +5,7 @@ services:
       - "4566:4566"
       - "4510-4559:4510-4559"
     environment:
-      - SERVICES=SERVICES=acm,apigateway,cloudformation,cloudwatch,config,dynamodb,dynamodbstreams,ec2,es,events,firehose,iam,kinesis,kms,lambda,logs,opensearch,redshift,resource-groups,resourcegroupstaggingapi,route53,route53resolver,s3,s3control,scheduler,secretsmanager,ses,sns,sqs,ssm,stepfunctions,sts,support,swf,transcribe
+      - SERVICES=acm,apigateway,cloudformation,cloudwatch,config,dynamodb,dynamodbstreams,ec2,es,events,firehose,iam,kinesis,kms,lambda,logs,opensearch,redshift,resource-groups,resourcegroupstaggingapi,route53,route53resolver,s3,s3control,scheduler,secretsmanager,ses,sns,sqs,ssm,stepfunctions,sts,support,swf,transcribe
       - DEBUG=1
       - LS_LOG=debug
       - AWS_DEFAULT_REGION=us-east-1

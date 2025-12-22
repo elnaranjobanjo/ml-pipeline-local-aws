@@ -47,9 +47,10 @@ def lambda_handler(event: Mapping[str, Any] | None, _context: Any) -> dict[str, 
         "body": json.dumps(
             {
                 "metrics": result.metrics,
-                "feature_count": len(result.feature_names),
-                "artifact_bucket": artifact_bucket,
-                "artifact_key": artifact_key,
+                "columns": list(result.columns),
+                "preview_rows": result.preview_rows,
+                "artifact_bucket": result.artifact_bucket,
+                "artifact_key": result.artifact_key,
             }
         ),
     }
