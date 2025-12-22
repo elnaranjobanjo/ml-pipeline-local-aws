@@ -25,6 +25,6 @@ def test_lambda_handler_reports_accuracy_and_drift():
     payload = json.loads(response["body"])
     assert payload["dataset_tag"] == "unit"
     assert payload["prediction_count"] == 3
-    assert payload["accuracy"] == 2 / 3
+    assert payload["accuracy"] == round(2 / 3, 4)
     assert payload["drift_score"] >= 0.0
     assert payload["label_distribution"]["buy"] == 2
