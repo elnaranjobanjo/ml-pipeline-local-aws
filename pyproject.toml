@@ -1,0 +1,9 @@
+[project]
+name = "ml-pipeline-local-aws"
+version = "0.1.0"
+description = "LocalStack-powered ML microservices demo"
+requires-python = ">=3.10"
+
+dependencies = [
+    "pytest"
+]

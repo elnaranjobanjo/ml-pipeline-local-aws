@@ -9,3 +9,11 @@ tasks:
     desc: Start LocalStack in detached mode
     cmds:
       - docker compose -f localstack-docker-compose.yml up -d
+  deps:
+    desc: Sync Python dependencies using uv
+    cmds:
+      - uv sync
+  test:
+    desc: Run unit tests for all services
+    cmds:
+      - uv run pytest
