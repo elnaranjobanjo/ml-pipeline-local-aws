@@ -1,3 +1,4 @@
+import importlib.util
 import io
 import json
 import sys
@@ -5,14 +6,21 @@ from pathlib import Path
 
 SERVICE_DIR = Path(__file__).resolve().parents[1]
 SRC_DIR = SERVICE_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.append(str(SRC_DIR))
-
 LAYER_DIR = SERVICE_DIR / "layer" / "python"
 if LAYER_DIR.exists() and str(LAYER_DIR) not in sys.path:
     sys.path.append(str(LAYER_DIR))
 
-import train  # noqa: E402
+
+def _load_train():
+    spec = importlib.util.spec_from_file_location("model_service_train", SRC_DIR / "train.py")
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+train = _load_train()
 
 
 def test_run_training_summarizes_and_uploads(monkeypatch):

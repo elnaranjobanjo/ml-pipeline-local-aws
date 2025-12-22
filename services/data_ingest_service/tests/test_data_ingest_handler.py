@@ -1,18 +1,27 @@
+import importlib.util
 import json
 import sys
 from pathlib import Path
 
 SERVICE_DIR = Path(__file__).resolve().parents[1]
 SRC_DIR = SERVICE_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.append(str(SRC_DIR))
-
-SERVICES_DIR = Path(__file__).resolve().parents[2]
-LAYER_DIR = SERVICES_DIR / "model_service" / "layer" / "python"
+LAYER_DIR = Path(__file__).resolve().parents[2] / "model_service" / "layer" / "python"
 if LAYER_DIR.exists() and str(LAYER_DIR) not in sys.path:
     sys.path.append(str(LAYER_DIR))
 
-import handler  # noqa: E402
+
+def _load_handler():
+    spec = importlib.util.spec_from_file_location(
+        "data_ingest_service_handler", SRC_DIR / "handler.py"
+    )
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+handler = _load_handler()
 
 
 def test_generate_rows_respects_batch_size():
