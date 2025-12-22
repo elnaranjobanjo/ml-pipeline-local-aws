@@ -22,7 +22,7 @@ tasks:
     desc: Build Lambda layer with Python dependencies
     cmds:
       - mkdir -p layer/python
-      - uv pip install --target layer/python -r requirements-lambda.txt
+      - uv pip install --target layer/python -r requirements.txt
       - cd layer && zip -r ../{{.DIST_DIR}}/ml-deps-layer.zip .
 
   build:function:
