@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "dataset" {
-  bucket        = "dataset"
+  bucket        = "ml-data-demo"
 }
 
 resource "aws_s3_bucket" "artifacts" {
